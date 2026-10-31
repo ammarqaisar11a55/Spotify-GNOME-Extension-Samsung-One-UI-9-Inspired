@@ -22,13 +22,16 @@ output=$(cd "$output" && pwd)
 sandbox=$(mktemp -d "${TMPDIR:-/tmp}/so.XXXXXX")
 trap 'rm -rf "$sandbox"' EXIT
 
-mkdir -p "$sandbox"/{home,config,cache,data/gnome-shell/extensions,run}
+mkdir -p "$sandbox"/{home,config,cache,data/gnome-shell/extensions,run,pack}
 chmod 700 "$sandbox/run"
 
+# Test the package a user would install, so that a missing file fails here.
+gnome-extensions pack "$root" --force --out-dir="$sandbox/pack" \
+    --extra-source=src --extra-source=icons || exit 1
+
 extensions=$sandbox/data/gnome-shell/extensions
-mkdir -p "$extensions/$uuid"
-cp -r "$root"/{metadata.json,extension.js,prefs.js,stylesheet.css,schemas,icons,src} "$extensions/$uuid/"
-glib-compile-schemas --strict "$extensions/$uuid/schemas/" || exit 1
+python3 -c 'import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' \
+    "$sandbox/pack/$uuid.shell-extension.zip" "$extensions/$uuid" || exit 1
 cp -r "$root/tests/driver" "$extensions/$driver"
 
 export HOME=$sandbox/home
