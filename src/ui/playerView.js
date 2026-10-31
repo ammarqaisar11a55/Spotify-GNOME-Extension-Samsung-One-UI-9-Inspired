@@ -289,10 +289,14 @@ export const PlayerView = GObject.registerClass({
     _applyLayout() {
         const hero = this._useHero();
 
-        this._artworkView.visible = this._settings.get_boolean('show-artwork');
+        if (hero !== this._heroActive)
+            this._rearrange(hero);
 
-        if (hero === this._heroActive)
-            return;
+        // Last, because being given a new parent shows an actor again.
+        this._artworkView.visible = this._settings.get_boolean('show-artwork');
+    }
+
+    _rearrange(hero) {
         this._heroActive = hero;
 
         for (const actor of [this._artworkView, this._statusLabel,
