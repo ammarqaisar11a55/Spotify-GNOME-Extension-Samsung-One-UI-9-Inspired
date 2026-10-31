@@ -11,6 +11,10 @@
   spacing: 6px;
 }
 
+.spotify-oneui-indicator-icon {
+  transition-duration: 200ms;
+}
+
 .spotify-oneui-playing .spotify-oneui-indicator-icon {
   color: #1ed760;
 }
