@@ -639,9 +639,29 @@ async function testHiDpi() {
     equal('artwork renders at physical resolution', await shell(
         'return spotifyTest.view._artworkView._front.content.get_preferred_size().slice(1);'),
     [640, 640]);
-    await screenshot('hidpi');
-    await closeMenu();
+
+    // The set used in the README. Banners from the test shell are kept out of it.
+    await shell('Main.messageTray.opacity = 0;');
+    await screenshot('expanded-dark');
+
+    await setting('string', 'theme', 'light');
+    await screenshot('expanded-light');
+
+    await setting('string', 'layout', 'compact');
+    await sleep(600);
+    await screenshot('compact-light');
+
+    await setting('string', 'theme', 'dark');
+    await screenshot('compact-dark');
+
+    await setting('string', 'layout', 'expanded');
+    await sleep(600);
     await stopMock();
+    await sleep(400);
+    await screenshot('not-running');
+
+    await closeMenu();
+    await testPreferences();
 }
 
 /* Opens the real preferences app against the disposable shell. */
