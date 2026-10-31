@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.spotify-oneui"
+          path="/org/gnome/shell/extensions/spotify-oneui/">
+
+    <key name="theme" type="s">
+      <choices>
+        <choice value="auto"/>
+        <choice value="dark"/>
+        <choice value="light"/>
+      </choices>
+      <default>'auto'</default>
+      <summary>Player theme</summary>
+      <description>Follow the desktop appearance, or always use dark or light.</description>
+    </key>
+
+    <key name="layout" type="s">
+      <choices>
+        <choice value="expanded"/>
+        <choice value="compact"/>
+      </choices>
+      <default>'expanded'</default>
+      <summary>Player layout</summary>
+      <description>Expanded uses a large artwork hero. Compact uses a small thumbnail.</description>
+    </key>
+
+    <key name="show-artwork" type="b">
+      <default>true</default>
+      <summary>Show album artwork</summary>
+      <description>Whether album artwork appears in the player.</description>
+    </key>
+
+    <key name="show-panel-track" type="b">
+      <default>true</default>
+      <summary>Show the track in the panel</summary>
+      <description>Whether the current title and artist appear next to the panel icon.</description>
+    </key>
+
+    <key name="panel-position" type="s">
+      <choices>
+        <choice value="left"/>
+        <choice value="center"/>
+        <choice value="right"/>
+      </choices>
+      <default>'right'</default>
+      <summary>Panel section</summary>
+      <description>The section of the top panel that holds the indicator.</description>
+    </key>
+
+    <key name="panel-index" type="i">
+      <range min="0" max="32"/>
+      <default>0</default>
+      <summary>Position within the panel section</summary>
+      <description>0 places the indicator first in its section.</description>
+    </key>
+
+    <key name="show-shuffle" type="b">
+      <default>true</default>
+      <summary>Show the shuffle control</summary>
+      <description>Whether the shuffle button appears in the player.</description>
+    </key>
+
+    <key name="show-repeat" type="b">
+      <default>true</default>
+      <summary>Show the repeat control</summary>
+      <description>Whether the repeat button appears in the player.</description>
+    </key>
+
+    <key name="animations" type="s">
+      <choices>
+        <choice value="full"/>
+        <choice value="reduced"/>
+        <choice value="off"/>
+      </choices>
+      <default>'full'</default>
+      <summary>Animation level</summary>
+      <description>Full motion, reduced motion with a still waveform, or no animation.</description>
+    </key>
+
+  </schema>
+</schemalist>
