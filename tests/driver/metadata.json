@@ -1,0 +1,6 @@
+{
+  "uuid": "spotify-oneui-test-driver@ammarqaisar11a55.github.io",
+  "name": "Spotify One UI Test Driver",
+  "description": "Test support for the headless shell. Never install this on a real desktop.",
+  "shell-version": ["50"]
+}
