@@ -1,0 +1,60 @@
+#!/bin/bash
+# Runs a test script against the extension in a disposable headless GNOME Shell.
+#
+#   tests/run-headless.sh [output-dir] [script]
+#
+# Everything happens on a private D-Bus and in a throwaway home directory, so
+# the running desktop, its settings and a real Spotify client are not touched.
+# This never replaces the session's shell.
+
+set -u
+
+root=$(cd "$(dirname "$0")/.." && pwd)
+output=${1:-$root/dist/test-output}
+script=${2:-$root/tests/e2e.js}
+uuid=spotify-oneui@ammarqaisar11a55.github.io
+driver=spotify-oneui-test-driver@ammarqaisar11a55.github.io
+
+mkdir -p "$output"
+output=$(cd "$output" && pwd)
+
+# The Wayland socket lives here and its path may not exceed 108 bytes.
+sandbox=$(mktemp -d "${TMPDIR:-/tmp}/so.XXXXXX")
+trap 'rm -rf "$sandbox"' EXIT
+
+mkdir -p "$sandbox"/{home,config,cache,data/gnome-shell/extensions,run}
+chmod 700 "$sandbox/run"
+
+extensions=$sandbox/data/gnome-shell/extensions
+mkdir -p "$extensions/$uuid"
+cp -r "$root"/{metadata.json,extension.js,prefs.js,stylesheet.css,schemas,icons,src} "$extensions/$uuid/"
+glib-compile-schemas --strict "$extensions/$uuid/schemas/" || exit 1
+cp -r "$root/tests/driver" "$extensions/$driver"
+
+export HOME=$sandbox/home
+export XDG_CONFIG_HOME=$sandbox/config
+export XDG_CACHE_HOME=$sandbox/cache
+export XDG_DATA_HOME=$sandbox/data
+export XDG_RUNTIME_DIR=$sandbox/run
+export XDG_SESSION_TYPE=wayland
+export GSETTINGS_BACKEND=keyfile
+export GSETTINGS_SCHEMA_DIR=$extensions/$uuid/schemas:/usr/share/glib-2.0/schemas
+unset WAYLAND_DISPLAY DISPLAY XDG_SESSION_ID DBUS_SESSION_BUS_ADDRESS
+
+gsettings set org.gnome.shell enabled-extensions "['$driver', '$uuid']"
+gsettings set org.gnome.shell disable-user-extensions false
+gsettings set org.gnome.shell welcome-dialog-last-shown-version '999'
+gsettings set org.gnome.desktop.interface color-scheme "${TEST_COLOR_SCHEME:-prefer-dark}"
+
+export TEST_ROOT=$root TEST_OUTPUT=$output TEST_SCRIPT=$script
+exec dbus-run-session -- bash -c '
+    gnome-shell --headless --wayland --no-x11 --force-animations \
+        --virtual-monitor "${TEST_MONITOR:-1600x1000}" \
+        --wayland-display=test-0 > "$TEST_OUTPUT/shell.log" 2>&1 &
+    shell=$!
+    gjs -m "$TEST_SCRIPT"
+    status=$?
+    kill $shell 2>/dev/null
+    wait $shell 2>/dev/null
+    exit $status
+'
