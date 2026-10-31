@@ -18,6 +18,9 @@ const STATUS_CLASSES = {
     [PlaybackStatus.PAUSED]: 'spotify-oneui-paused',
 };
 
+const FULL_OPACITY = 255;
+const ABSENT_OPACITY = 140;
+
 /** A popup that honors the animation preference when it opens and closes. */
 class PlayerMenu extends PopupMenu.PopupMenu {
     constructor(sourceActor, motion) {
@@ -93,6 +96,8 @@ class SpotifyIndicator extends PanelMenu.Button {
             this.remove_style_class_name(styleClass);
         if (available && STATUS_CLASSES[status])
             this.add_style_class_name(STATUS_CLASSES[status]);
+
+        this._icon.opacity = available ? FULL_OPACITY : ABSENT_OPACITY;
 
         const artist = track.artists[0];
         const text = artist ? `${track.title} · ${artist}` : track.title;
