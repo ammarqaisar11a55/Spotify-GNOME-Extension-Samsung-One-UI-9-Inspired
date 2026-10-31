@@ -13,6 +13,10 @@ const REQUEST_TIMEOUT_SECONDS = 15;
 const CORNER_EXPONENT = 2.6;
 const SAMPLE_SIZE = 16;
 
+// Where the scrim behind the hero's text begins, and how dark it finally gets.
+const SCRIM_START = 0.42;
+const SCRIM_DEPTH = 0.82;
+
 // Older Spotify clients report a host that no longer serves images.
 const LEGACY_IMAGE_HOST = 'https://open.spotify.com/image/';
 const IMAGE_HOST = 'https://i.scdn.co/image/';
@@ -71,11 +75,31 @@ function roundCorners(pixels, rowstride, size, radius) {
     }
 }
 
+/* Baked into the pixels so that it follows the cover's corners exactly. */
+function applyScrim(pixels, rowstride, size) {
+    const first = Math.floor(size * SCRIM_START);
+
+    for (let y = first; y < size; y++) {
+        const progress = (y - first) / (size - first);
+        const eased = progress * progress * (3 - 2 * progress);
+        const keep = 1 - SCRIM_DEPTH * eased;
+        const row = y * rowstride;
+
+        for (let x = 0; x < size; x++) {
+            const offset = row + x * 4;
+
+            pixels[offset] *= keep;
+            pixels[offset + 1] *= keep;
+            pixels[offset + 2] *= keep;
+        }
+    }
+}
+
 /**
- * Pixels are uploaded directly, not referenced from CSS, because St's texture
- * cache keeps every file it loads for a stylesheet for the life of the shell.
+ * Pixels are uploaded directly rather than referenced from CSS, so the texture
+ * lives and dies with its actor and not with St's shared texture cache.
  */
-function render(source, size, radius) {
+function render(source, {size, radius, scrim}) {
     const width = source.get_width();
     const height = source.get_height();
     const side = Math.min(width, height);
@@ -88,6 +112,9 @@ function render(source, size, radius) {
 
     const pixels = pixbuf.get_pixels();
     const rowstride = pixbuf.get_rowstride();
+
+    if (scrim)
+        applyScrim(pixels, rowstride, size);
     roundCorners(pixels, rowstride, size, radius);
 
     const content = St.ImageContent.new_with_preferred_size(size, size);
@@ -138,15 +165,16 @@ export class ArtworkLoader {
      * @param {object} shape
      * @param {number} shape.size - the edge length in physical pixels
      * @param {number} shape.radius - the corner radius in physical pixels
+     * @param {boolean} shape.scrim - whether to darken the cover for overlaid text
      * @param {Gio.Cancellable} cancellable
      * @returns {Promise<{content: St.ImageContent, color: number[]}>}
      */
-    async load(url, {size, radius}, cancellable) {
+    async load(url, shape, cancellable) {
         const bytes = await this._fetch(normalizeUrl(url), cancellable);
         const source = await decode(bytes, cancellable);
 
         return {
-            content: render(source, size, radius),
+            content: render(source, shape),
             color: sampleColor(source),
         };
     }
