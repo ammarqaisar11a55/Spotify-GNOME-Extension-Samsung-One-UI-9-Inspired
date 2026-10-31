@@ -15,7 +15,8 @@
   transition-duration: 200ms;
 }
 
-.spotify-oneui-playing .spotify-oneui-indicator-icon {
+/* Selectors in this file are kept specific enough to outrank shell themes. */
+#panel .panel-button.spotify-oneui-playing .spotify-oneui-indicator-icon {
   color: #1ed760;
 }
 
@@ -169,7 +170,7 @@
   spacing: 6px;
 }
 
-.spotify-oneui-seek {
+.popup-menu .slider.spotify-oneui-seek {
   height: 40px;
   -barlevel-height: 40px;
   -slider-handle-radius: 0;
@@ -207,6 +208,10 @@
   width: 68px;
   height: 68px;
   margin: 0 4px;
+}
+
+.spotify-oneui-play:focus {
+  box-shadow: inset 0 0 0 3px rgba(7, 19, 11, 0.6);
 }
 
 .spotify-oneui-play .spotify-oneui-control-icon {
@@ -313,7 +318,7 @@
   color: #f2f3f5;
 }
 
-.spotify-oneui-dark .spotify-oneui-seek {
+.spotify-oneui-dark .slider.spotify-oneui-seek {
   color: #f2f3f5;
   -barlevel-background-color: rgba(255, 255, 255, 0.22);
   -barlevel-active-background-color: #1ed760;
@@ -347,7 +352,7 @@
   color: rgba(255, 255, 255, 0.3);
 }
 
-.spotify-oneui-dark .spotify-oneui-seek:insensitive {
+.spotify-oneui-dark .slider.spotify-oneui-seek:insensitive {
   -barlevel-active-background-color: rgba(255, 255, 255, 0.4);
 }
 
@@ -390,7 +395,7 @@
   color: #17181b;
 }
 
-.spotify-oneui-light .spotify-oneui-seek {
+.spotify-oneui-light .slider.spotify-oneui-seek {
   color: #17181b;
   -barlevel-background-color: rgba(0, 0, 0, 0.18);
   -barlevel-active-background-color: #1db954;
@@ -424,7 +429,7 @@
   color: rgba(0, 0, 0, 0.3);
 }
 
-.spotify-oneui-light .spotify-oneui-seek:insensitive {
+.spotify-oneui-light .slider.spotify-oneui-seek:insensitive {
   -barlevel-active-background-color: rgba(0, 0, 0, 0.35);
 }
 
