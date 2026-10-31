@@ -47,7 +47,7 @@ export default class SpotifyOneUIPreferences extends ExtensionPreferences {
 
         // Bindings and handlers share the window's lifetime through this.
         window._settings = settings;
-        window.set_default_size(560, 720);
+        window.set_default_size(560, 860);
         window.search_enabled = true;
 
         const page = new Adw.PreferencesPage({
