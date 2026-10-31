@@ -55,6 +55,7 @@ const CONTROL_XML = `<node>
     <method name="Calls"><arg direction="out" name="calls" type="s"/></method>
     <method name="ClearCalls"/>
     <method name="SetEmptyMetadata"/>
+    <method name="SetArtUrl"><arg direction="in" name="url" type="s"/></method>
     <method name="Exit"/>
   </interface>
 </node>`;
@@ -298,6 +299,10 @@ const control = {
         player.empty = true;
         player._notify('Metadata');
     },
+    SetArtUrl: url => {
+        player.track.artUrl = url;
+        player._notify('Metadata');
+    },
     Exit: () => loop.quit(),
 };
 
@@ -314,11 +319,13 @@ Gio.bus_own_name(Gio.BusType.SESSION, 'org.mpris.MediaPlayer2.spotify',
     connection => {
         const path = '/org/mpris/MediaPlayer2';
 
-        Gio.DBusExportedObject.wrapJSObject(ROOT_XML, root).export(connection, path);
+        // Exported objects must stay referenced or they vanish when collected.
+        root.dbus = Gio.DBusExportedObject.wrapJSObject(ROOT_XML, root);
+        root.dbus.export(connection, path);
         player.dbus = Gio.DBusExportedObject.wrapJSObject(PLAYER_XML, player);
         player.dbus.export(connection, path);
-        Gio.DBusExportedObject.wrapJSObject(CONTROL_XML, control)
-            .export(connection, '/org/spotifyoneui/MockControl');
+        control.dbus = Gio.DBusExportedObject.wrapJSObject(CONTROL_XML, control);
+        control.dbus.export(connection, '/org/spotifyoneui/MockControl');
     },
     null,
     () => {
