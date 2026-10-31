@@ -11,14 +11,6 @@
   spacing: 6px;
 }
 
-.spotify-oneui-indicator-icon {
-  opacity: 0.6;
-}
-
-.spotify-oneui-paused .spotify-oneui-indicator-icon {
-  opacity: 1;
-}
-
 .spotify-oneui-playing .spotify-oneui-indicator-icon {
   color: #1ed760;
 }
@@ -112,24 +104,12 @@
   icon-size: 36px;
 }
 
-.spotify-oneui-scrim {
-  height: 176px;
-  border-radius: 0 0 24px 24px;
-  background-gradient-direction: vertical;
-  background-gradient-start: rgba(0, 0, 0, 0);
-  background-gradient-end: rgba(0, 0, 0, 0.78);
-}
-
 .spotify-oneui-info {
   spacing: 2px;
 }
 
 .spotify-oneui-expanded .spotify-oneui-info {
   padding: 18px;
-}
-
-.spotify-oneui-expanded .spotify-oneui-info {
-  y-align: end;
 }
 
 .spotify-oneui-title {
@@ -193,10 +173,6 @@
   -seek-bar-gap: 3px;
 }
 
-.spotify-oneui-seek:insensitive {
-  opacity: 0.5;
-}
-
 .spotify-oneui-time {
   font-size: 0.8em;
   font-weight: 600;
@@ -217,10 +193,6 @@
 
 .spotify-oneui-control:focus {
   box-shadow: inset 0 0 0 2px #1ed760;
-}
-
-.spotify-oneui-control:insensitive {
-  opacity: 0.4;
 }
 
 .spotify-oneui-control-icon {
@@ -367,6 +339,14 @@
   color: #1ed760;
 }
 
+.spotify-oneui-dark .spotify-oneui-control:insensitive {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.spotify-oneui-dark .spotify-oneui-seek:insensitive {
+  -barlevel-active-background-color: rgba(255, 255, 255, 0.4);
+}
+
 .spotify-oneui-dark .spotify-oneui-play {
   color: #07130b;
   background-color: #1ed760;
@@ -434,6 +414,14 @@
 
 .spotify-oneui-light .spotify-oneui-toggle:checked {
   color: #149c45;
+}
+
+.spotify-oneui-light .spotify-oneui-control:insensitive {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.spotify-oneui-light .spotify-oneui-seek:insensitive {
+  -barlevel-active-background-color: rgba(0, 0, 0, 0.35);
 }
 
 .spotify-oneui-light .spotify-oneui-play {
