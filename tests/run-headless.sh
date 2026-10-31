@@ -28,6 +28,14 @@ chmod 700 "$sandbox/run"
 extensions=$sandbox/data/gnome-shell/extensions
 cp -r "$root/tests/driver" "$extensions/$driver"
 
+# Copies other installed extensions in, to check how the player sits with them.
+# TEST_EXTRA_EXTENSIONS is a space separated list of uuids.
+enabled="'$driver', '$uuid'"
+for extra in ${TEST_EXTRA_EXTENSIONS:-}; do
+    cp -r "$HOME/.local/share/gnome-shell/extensions/$extra" "$extensions/$extra" || exit 1
+    enabled="$enabled, '$extra'"
+done
+
 export HOME=$sandbox/home
 export XDG_CONFIG_HOME=$sandbox/config
 export XDG_CACHE_HOME=$sandbox/cache
@@ -43,7 +51,7 @@ gnome-extensions pack "$root" --force --out-dir="$sandbox/pack" \
     --extra-source=src --extra-source=icons || exit 1
 gnome-extensions install --force "$sandbox/pack/$uuid.shell-extension.zip" || exit 1
 
-gsettings set org.gnome.shell enabled-extensions "['$driver', '$uuid']"
+gsettings set org.gnome.shell enabled-extensions "[$enabled]"
 gsettings set org.gnome.shell disable-user-extensions false
 gsettings set org.gnome.shell welcome-dialog-last-shown-version '999'
 gsettings set org.gnome.desktop.interface color-scheme "${TEST_COLOR_SCHEME:-prefer-dark}"
