@@ -6,7 +6,7 @@ import GObject from 'gi://GObject';
 import {Slider} from 'resource:///org/gnome/shell/ui/slider.js';
 
 const SAMPLE_COUNT = 64;
-const MIN_AMPLITUDE = 0.2;
+const MIN_AMPLITUDE = 0.14;
 const BREATH_DEPTH = 0.16;
 const BREATH_SPREAD = 0.55;
 const SEEK_DEBOUNCE_MS = 220;
@@ -25,7 +25,7 @@ function shapeForTrack(trackId) {
 
     let level = random();
     return Array.from({length: SAMPLE_COUNT}, () => {
-        level += (random() - level) * 0.55;
+        level += (random() - level) * 0.72;
         return MIN_AMPLITUDE + (1 - MIN_AMPLITUDE) * level;
     });
 }
