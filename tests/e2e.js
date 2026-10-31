@@ -117,8 +117,10 @@ const setting = (kind, key, value) =>
 const viewText = label => shell(`return spotifyTest.view.${label}.text;`);
 const viewVisible = actor => shell(`return spotifyTest.view.${actor}.visible;`);
 
-async function screenshot(name) {
-    await shell('await spotifyTest.parkPointer();');
+async function screenshot(name, {keepPointer = false} = {}) {
+    if (!keepPointer)
+        await shell('await spotifyTest.parkPointer();');
+
     const {x, y, width, height, stageWidth, stageHeight} = await shell(
         `return {...spotifyTest.rect(spotifyTest.indicator.menu.box),
             stageWidth: global.stage.width, stageHeight: global.stage.height};`);
@@ -524,6 +526,73 @@ async function testLifecycle() {
         `return Main.extensionManager.lookup('${UUID}').state;`), 1);
 }
 
+async function testInteractionStates() {
+    await shell('Main.overview.hide(); await new Promise(r => setTimeout(r, 600));');
+    await startMock();
+    await openMenu();
+    await sleep(400);
+
+    await shell('await spotifyTest.hover(spotifyTest.view._seekBar);');
+    check('hovering reaches the seek bar', await shell('return spotifyTest.view._seekBar.hover;'));
+    await screenshot('hover-seek', {keepPointer: true});
+
+    await shell('await spotifyTest.hover(spotifyTest.view._nextButton);');
+    check('hovering reaches a control', await shell('return spotifyTest.view._nextButton.hover;'));
+    await screenshot('hover-next', {keepPointer: true});
+
+    await shell(`spotifyTest.view._playButton.grab_key_focus();
+        await new Promise(r => setTimeout(r, 200));`);
+    await screenshot('focus-play');
+
+    await clearCalls();
+    await shell('await spotifyTest.pressKey(spotifyTest.view._playButton, 0x20);');
+    await sleep(200);
+    equal('space activates the focused control', await mockCalls(), ['PlayPause']);
+
+    await closeMenu();
+    await stopMock();
+}
+
+/* Tracks skipping faster than artwork can load, with memory measured around it. */
+async function testRapidSkips() {
+    const residentKb = () => shell(`
+        const [, bytes] = imports.gi.GLib.file_get_contents('/proc/self/status');
+        const text = new TextDecoder().decode(bytes);
+        return Number(text.match(/VmRSS:\\s+(\\d+)/)[1]);`);
+
+    await shell('Main.overview.hide(); await new Promise(r => setTimeout(r, 600));');
+    await startMock();
+    await openMenu();
+    await sleep(600);
+
+    const skip = (count, gap) => shell(`
+        for (let i = 0; i < ${count}; i++) {
+            spotifyTest.view._client.next();
+            await new Promise(r => setTimeout(r, ${gap}));
+        }`);
+
+    await skip(10, 5);
+    await sleep(1200);
+    equal('rapid skips settle on the right track', await viewText('_titleLabel'),
+        'A Considerably Longer Song Title That Cannot Possibly Fit On One Line');
+    check('rapid skips settle on its artwork', await shell(
+        'return spotifyTest.view._artworkView._front.content !== null;'));
+
+    await skip(60, 60);
+    await sleep(800);
+    const before = await residentKb();
+    await skip(300, 60);
+    await sleep(1500);
+    const after = await residentKb();
+
+    print(`info  resident memory across 300 track changes: ${before} kB to ${after} kB`);
+    check('memory stays bounded across 300 track changes', after - before < 60000,
+        `grew by ${after - before} kB`);
+
+    await closeMenu();
+    await stopMock();
+}
+
 /* Needs a short monitor: TEST_MONITOR=1280x560 TEST_ONLY=testShortScreen */
 async function testShortScreen() {
     await shell('Main.overview.hide(); await new Promise(r => setTimeout(r, 600));');
@@ -611,7 +680,8 @@ let exitCode = 0;
     const suites = {
         testNotRunning, testConnects, testControls, testSeeking, testTrackEdgeCases,
         testArtworkSources, testAppearance, testAnimationLevels, testPanelPosition,
-        testDisconnect, testLegacyClient, testLifecycle, testPreferences,
+        testDisconnect, testLegacyClient, testLifecycle, testInteractionStates,
+        testRapidSkips, testPreferences,
     };
     const onRequest = {testShortScreen, testHiDpi};
 
