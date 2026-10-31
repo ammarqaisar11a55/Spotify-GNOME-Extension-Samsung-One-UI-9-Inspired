@@ -1,6 +1,7 @@
 UUID := spotify-oneui@ammarqaisar11a55.github.io
 DIST := dist
 PACK := $(DIST)/$(UUID).shell-extension.zip
+TARGET := $(or $(XDG_DATA_HOME),$(HOME)/.local/share)/gnome-shell/extensions/$(UUID)
 
 .PHONY: all schemas pack install uninstall test clean
 
@@ -16,6 +17,7 @@ pack:
 
 install: pack
 	gnome-extensions install --force $(PACK)
+	chmod -R go-w $(TARGET)
 	@echo "Installed. Log out and back in, then run: gnome-extensions enable $(UUID)"
 
 uninstall:
