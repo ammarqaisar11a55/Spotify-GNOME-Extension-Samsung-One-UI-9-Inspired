@@ -1,0 +1,497 @@
+/*
+ * Spotify One UI Player
+ *
+ * Tokens are documented in docs/DESIGN.md. St has no CSS variables, so values
+ * are repeated here. Layout rules come first, then the dark and light themes.
+ */
+
+/* Panel indicator */
+
+.spotify-oneui-indicator-box {
+  spacing: 6px;
+}
+
+.spotify-oneui-indicator-icon {
+  opacity: 0.6;
+}
+
+.spotify-oneui-paused .spotify-oneui-indicator-icon {
+  opacity: 1;
+}
+
+.spotify-oneui-playing .spotify-oneui-indicator-icon {
+  color: #1ed760;
+}
+
+.spotify-oneui-indicator-label {
+  max-width: 220px;
+  font-weight: 600;
+}
+
+/* Popup */
+
+.popup-menu-boxpointer.spotify-oneui-menu {
+  -arrow-rise: 0;
+  -arrow-base: 0;
+  -arrow-border-radius: 0;
+  -boxpointer-gap: 6px;
+}
+
+.popup-menu.spotify-oneui-menu {
+  min-width: 0;
+}
+
+.spotify-oneui-menu .popup-menu-content.spotify-oneui-card {
+  padding: 0;
+  border-radius: 32px;
+  border-width: 1px;
+  border-style: solid;
+  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.38);
+}
+
+.spotify-oneui-root {
+  width: 336px;
+  border-radius: 31px;
+}
+
+.spotify-oneui-tint {
+  border-radius: 31px;
+  transition-duration: 320ms;
+}
+
+.spotify-oneui-player {
+  padding: 8px;
+}
+
+/* Track section */
+
+.spotify-oneui-hero {
+  width: 320px;
+  height: 320px;
+  border-radius: 24px;
+}
+
+.spotify-oneui-row {
+  spacing: 12px;
+  padding: 8px 8px 0;
+}
+
+.spotify-oneui-artwork {
+  border-radius: 24px;
+}
+
+.spotify-oneui-expanded .spotify-oneui-artwork {
+  width: 320px;
+  height: 320px;
+}
+
+.spotify-oneui-compact .spotify-oneui-artwork {
+  width: 84px;
+  height: 84px;
+  border-radius: 18px;
+}
+
+.spotify-oneui-artwork-fallback {
+  border-radius: 24px;
+  background-color: #1f2124;
+  background-gradient-direction: vertical;
+  background-gradient-start: #2a2d31;
+  background-gradient-end: #17181b;
+}
+
+.spotify-oneui-compact .spotify-oneui-artwork-fallback {
+  border-radius: 18px;
+}
+
+.spotify-oneui-artwork-note {
+  icon-size: 96px;
+  color: rgba(255, 255, 255, 0.22);
+}
+
+.spotify-oneui-compact .spotify-oneui-artwork-note {
+  icon-size: 36px;
+}
+
+.spotify-oneui-scrim {
+  height: 176px;
+  border-radius: 0 0 24px 24px;
+  background-gradient-direction: vertical;
+  background-gradient-start: rgba(0, 0, 0, 0);
+  background-gradient-end: rgba(0, 0, 0, 0.78);
+}
+
+.spotify-oneui-info {
+  spacing: 2px;
+}
+
+.spotify-oneui-expanded .spotify-oneui-info {
+  padding: 18px;
+}
+
+.spotify-oneui-expanded .spotify-oneui-info {
+  y-align: end;
+}
+
+.spotify-oneui-title {
+  font-size: 1.5em;
+  font-weight: 800;
+}
+
+.spotify-oneui-compact .spotify-oneui-title {
+  font-size: 1.2em;
+}
+
+.spotify-oneui-artist {
+  font-weight: 600;
+}
+
+.spotify-oneui-album {
+  font-size: 0.86em;
+  font-weight: 500;
+}
+
+.spotify-oneui-status {
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.spotify-oneui-expanded .spotify-oneui-status {
+  margin: 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.42);
+}
+
+.spotify-oneui-compact .spotify-oneui-status {
+  margin-bottom: 2px;
+}
+
+.spotify-oneui-expanded .spotify-oneui-title,
+.spotify-oneui-expanded .spotify-oneui-artist {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.spotify-oneui-expanded .spotify-oneui-album {
+  color: rgba(255, 255, 255, 0.76);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* Progress */
+
+.spotify-oneui-progress {
+  padding: 14px 12px 0;
+  spacing: 6px;
+}
+
+.spotify-oneui-seek {
+  height: 40px;
+  -barlevel-height: 40px;
+  -slider-handle-radius: 0;
+  -seek-bar-width: 3px;
+  -seek-bar-gap: 3px;
+}
+
+.spotify-oneui-seek:insensitive {
+  opacity: 0.5;
+}
+
+.spotify-oneui-time {
+  font-size: 0.8em;
+  font-weight: 600;
+  font-feature-settings: "tnum";
+}
+
+/* Controls */
+
+.spotify-oneui-controls {
+  padding: 12px 0 12px;
+  spacing: 10px;
+}
+
+.spotify-oneui-control {
+  border-radius: 999px;
+  transition-duration: 120ms;
+}
+
+.spotify-oneui-control:focus {
+  box-shadow: inset 0 0 0 2px #1ed760;
+}
+
+.spotify-oneui-control:insensitive {
+  opacity: 0.4;
+}
+
+.spotify-oneui-control-icon {
+  icon-size: 22px;
+}
+
+.spotify-oneui-play {
+  width: 68px;
+  height: 68px;
+  margin: 0 4px;
+}
+
+.spotify-oneui-play .spotify-oneui-control-icon {
+  icon-size: 32px;
+}
+
+.spotify-oneui-transport {
+  width: 48px;
+  height: 48px;
+}
+
+.spotify-oneui-toggle {
+  width: 40px;
+  height: 40px;
+}
+
+.spotify-oneui-open {
+  width: 34px;
+  height: 34px;
+}
+
+.spotify-oneui-expanded .spotify-oneui-open {
+  margin: 10px;
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.42);
+}
+
+.spotify-oneui-expanded .spotify-oneui-open:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.spotify-oneui-open .spotify-oneui-control-icon {
+  icon-size: 16px;
+}
+
+/* Placeholder */
+
+.spotify-oneui-placeholder {
+  padding: 36px 28px 32px;
+  spacing: 6px;
+}
+
+.spotify-oneui-placeholder-badge {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 14px;
+  border-radius: 30px;
+}
+
+.spotify-oneui-placeholder-icon {
+  icon-size: 44px;
+  color: #1ed760;
+}
+
+.spotify-oneui-placeholder-title {
+  font-size: 1.3em;
+  font-weight: 800;
+}
+
+.spotify-oneui-placeholder-body {
+  text-align: center;
+}
+
+.spotify-oneui-placeholder-action {
+  margin-top: 16px;
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: #07130b;
+  background-color: #1ed760;
+  transition-duration: 120ms;
+}
+
+.spotify-oneui-placeholder-action:hover {
+  background-color: #3be477;
+}
+
+.spotify-oneui-placeholder-action:active {
+  background-color: #1abf55;
+}
+
+.spotify-oneui-placeholder-action:focus {
+  box-shadow: inset 0 0 0 2px #07130b;
+}
+
+/* Dark theme */
+
+.spotify-oneui-dark .popup-menu-content.spotify-oneui-card {
+  color: #f2f3f5;
+  background-color: #141517;
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+.spotify-oneui-dark .spotify-oneui-album,
+.spotify-oneui-dark .spotify-oneui-artist,
+.spotify-oneui-dark .spotify-oneui-status,
+.spotify-oneui-dark .spotify-oneui-time,
+.spotify-oneui-dark .spotify-oneui-placeholder-body {
+  color: #a1a4ab;
+}
+
+.spotify-oneui-dark .spotify-oneui-title,
+.spotify-oneui-dark .spotify-oneui-placeholder-title {
+  color: #f2f3f5;
+}
+
+.spotify-oneui-dark .spotify-oneui-seek {
+  color: #f2f3f5;
+  -barlevel-background-color: rgba(255, 255, 255, 0.22);
+  -barlevel-active-background-color: #1ed760;
+}
+
+.spotify-oneui-dark .spotify-oneui-transport {
+  color: #f2f3f5;
+  background-color: #26272b;
+}
+
+.spotify-oneui-dark .spotify-oneui-transport:hover {
+  background-color: #303136;
+}
+
+.spotify-oneui-dark .spotify-oneui-toggle,
+.spotify-oneui-dark .spotify-oneui-open {
+  color: #a1a4ab;
+}
+
+.spotify-oneui-dark .spotify-oneui-toggle:hover,
+.spotify-oneui-dark .spotify-oneui-open:hover {
+  color: #f2f3f5;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.spotify-oneui-dark .spotify-oneui-toggle:checked {
+  color: #1ed760;
+}
+
+.spotify-oneui-dark .spotify-oneui-play {
+  color: #07130b;
+  background-color: #1ed760;
+}
+
+.spotify-oneui-dark .spotify-oneui-play:hover {
+  background-color: #3be477;
+}
+
+.spotify-oneui-dark .spotify-oneui-play:active {
+  background-color: #1abf55;
+}
+
+.spotify-oneui-dark .spotify-oneui-placeholder-badge {
+  background-color: #26272b;
+}
+
+/* Light theme */
+
+.spotify-oneui-light .popup-menu-content.spotify-oneui-card {
+  color: #17181b;
+  background-color: #f3f4f6;
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.18);
+}
+
+.spotify-oneui-light .spotify-oneui-album,
+.spotify-oneui-light .spotify-oneui-artist,
+.spotify-oneui-light .spotify-oneui-status,
+.spotify-oneui-light .spotify-oneui-time,
+.spotify-oneui-light .spotify-oneui-placeholder-body {
+  color: #5f636b;
+}
+
+.spotify-oneui-light .spotify-oneui-title,
+.spotify-oneui-light .spotify-oneui-placeholder-title {
+  color: #17181b;
+}
+
+.spotify-oneui-light .spotify-oneui-seek {
+  color: #17181b;
+  -barlevel-background-color: rgba(0, 0, 0, 0.18);
+  -barlevel-active-background-color: #1db954;
+}
+
+.spotify-oneui-light .spotify-oneui-transport {
+  color: #17181b;
+  background-color: #ffffff;
+}
+
+.spotify-oneui-light .spotify-oneui-transport:hover {
+  background-color: #e9eaee;
+}
+
+.spotify-oneui-light .spotify-oneui-toggle,
+.spotify-oneui-light .spotify-oneui-open {
+  color: #5f636b;
+}
+
+.spotify-oneui-light .spotify-oneui-toggle:hover,
+.spotify-oneui-light .spotify-oneui-open:hover {
+  color: #17181b;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.spotify-oneui-light .spotify-oneui-toggle:checked {
+  color: #149c45;
+}
+
+.spotify-oneui-light .spotify-oneui-play {
+  color: #07130b;
+  background-color: #1db954;
+}
+
+.spotify-oneui-light .spotify-oneui-play:hover {
+  background-color: #2ccb64;
+}
+
+.spotify-oneui-light .spotify-oneui-play:active {
+  background-color: #18a34a;
+}
+
+.spotify-oneui-light .spotify-oneui-placeholder-badge {
+  background-color: #ffffff;
+}
+
+.spotify-oneui-light .spotify-oneui-placeholder-action {
+  background-color: #1db954;
+}
+
+.spotify-oneui-light .spotify-oneui-placeholder-action:hover {
+  background-color: #2ccb64;
+}
+
+.spotify-oneui-light .spotify-oneui-placeholder-action:active {
+  background-color: #18a34a;
+}
+
+/* The hero sits on artwork in both themes, so its text ignores the theme. */
+
+.spotify-oneui-dark .spotify-oneui-expanded .spotify-oneui-title,
+.spotify-oneui-light .spotify-oneui-expanded .spotify-oneui-title,
+.spotify-oneui-dark .spotify-oneui-expanded .spotify-oneui-artist,
+.spotify-oneui-light .spotify-oneui-expanded .spotify-oneui-artist {
+  color: #ffffff;
+}
+
+.spotify-oneui-dark .spotify-oneui-expanded .spotify-oneui-album,
+.spotify-oneui-light .spotify-oneui-expanded .spotify-oneui-album {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.spotify-oneui-dark .spotify-oneui-expanded .spotify-oneui-status,
+.spotify-oneui-light .spotify-oneui-expanded .spotify-oneui-status {
+  color: #ffffff;
+}
+
+.spotify-oneui-dark .spotify-oneui-expanded .spotify-oneui-open,
+.spotify-oneui-light .spotify-oneui-expanded .spotify-oneui-open {
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.42);
+}
+
+.spotify-oneui-dark .spotify-oneui-expanded .spotify-oneui-open:hover,
+.spotify-oneui-light .spotify-oneui-expanded .spotify-oneui-open:hover {
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.6);
+}
