@@ -1,0 +1,8 @@
+# Build output
+dist/
+*.shell-extension.zip
+schemas/gschemas.compiled
+
+# Local tooling
+node_modules/
+.claude/
