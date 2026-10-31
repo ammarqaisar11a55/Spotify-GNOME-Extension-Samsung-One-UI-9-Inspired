@@ -5,7 +5,8 @@
 //   gjs -m tests/mock-spotify.js [--legacy]
 //
 // With --legacy it behaves like an old client: writes to Shuffle and LoopStatus
-// are accepted and ignored, and Seeked is never emitted.
+// are accepted and ignored, Seeked is never emitted, Position always reads 0,
+// and track ids are not valid object paths.
 
 import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
@@ -149,7 +150,7 @@ class Player {
     }
 
     _setStatus(status) {
-        this._setPosition(this.Position);
+        this._setPosition(this._livePosition);
         this._status = status;
         this._notify('PlaybackStatus');
     }
@@ -191,7 +192,7 @@ class Player {
 
     Seek(offset) {
         this._record(`Seek ${offset}`);
-        this._seekTo(this.Position + offset);
+        this._seekTo(this._livePosition + offset);
     }
 
     SetPosition(trackId, position) {
@@ -245,8 +246,10 @@ class Player {
             return {};
 
         const {id, title, artists, album, length, artUrl} = this.track;
+        const trackId = legacy ? id.replace('/com/spotify/track/', 'spotify:track:') : id;
+
         return {
-            'mpris:trackid': new GLib.Variant('s', id),
+            'mpris:trackid': new GLib.Variant('s', trackId),
             'mpris:length': new GLib.Variant('t', length),
             'mpris:artUrl': new GLib.Variant('s', artUrl),
             'xesam:title': new GLib.Variant('s', title),
@@ -257,6 +260,10 @@ class Player {
     }
 
     get Position() {
+        return legacy ? 0 : this._livePosition;
+    }
+
+    get _livePosition() {
         if (this._status !== 'Playing')
             return this._position;
 
