@@ -576,7 +576,7 @@ async function testPreferences() {
     launcher.setenv('WAYLAND_DISPLAY', 'test-0', true);
     launcher.setenv('GDK_BACKEND', 'wayland', true);
 
-    const app = launcher.spawnv(['/usr/share/gnome-shell/org.gnome.Shell.Extensions']);
+    const app = launcher.spawnv(['gjs', '-m', '/usr/share/gnome-shell/org.gnome.Shell.Extensions']);
     await sleep(1500);
 
     await call('org.gnome.Shell.Extensions', '/org/gnome/Shell/Extensions',
