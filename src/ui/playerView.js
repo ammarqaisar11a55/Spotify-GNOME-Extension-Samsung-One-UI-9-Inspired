@@ -36,6 +36,10 @@ const BREATH_PERIOD_US = 2.4 * GLib.USEC_PER_SEC;
 const DARK_TINT_ALPHA = 0.14;
 const LIGHT_TINT_ALPHA = 0.09;
 
+// St keeps a theme node for every distinct inline style it sees, so tints are
+// rounded to a small palette instead of varying freely with each album.
+const TINT_STEP = 24;
+
 const REPEAT_ICONS = {None: 'repeat', Playlist: 'repeat', Track: 'repeat-one'};
 
 const STATUS_LABELS = {
@@ -510,7 +514,8 @@ export const PlayerView = GObject.registerClass({
             return;
         }
 
-        const [red, green, blue] = this._tintColor;
+        const [red, green, blue] = this._tintColor.map(channel =>
+            Math.min(Math.round(channel / TINT_STEP) * TINT_STEP, 255));
         const alpha = this._theme.isDark ? DARK_TINT_ALPHA : LIGHT_TINT_ALPHA;
 
         this._tint.style = `background-color: rgba(${red}, ${green}, ${blue}, ${alpha});`;
