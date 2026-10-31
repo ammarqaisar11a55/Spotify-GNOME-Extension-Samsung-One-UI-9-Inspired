@@ -25,13 +25,7 @@ trap 'rm -rf "$sandbox"' EXIT
 mkdir -p "$sandbox"/{home,config,cache,data/gnome-shell/extensions,run,pack}
 chmod 700 "$sandbox/run"
 
-# Test the package a user would install, so that a missing file fails here.
-gnome-extensions pack "$root" --force --out-dir="$sandbox/pack" \
-    --extra-source=src --extra-source=icons || exit 1
-
 extensions=$sandbox/data/gnome-shell/extensions
-python3 -c 'import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' \
-    "$sandbox/pack/$uuid.shell-extension.zip" "$extensions/$uuid" || exit 1
 cp -r "$root/tests/driver" "$extensions/$driver"
 
 export HOME=$sandbox/home
@@ -43,6 +37,11 @@ export XDG_SESSION_TYPE=wayland
 export GSETTINGS_BACKEND=keyfile
 export GSETTINGS_SCHEMA_DIR=$extensions/$uuid/schemas:/usr/share/glib-2.0/schemas
 unset WAYLAND_DISPLAY DISPLAY XDG_SESSION_ID DBUS_SESSION_BUS_ADDRESS
+
+# Pack and install the way a user does, so that a missing file fails here.
+gnome-extensions pack "$root" --force --out-dir="$sandbox/pack" \
+    --extra-source=src --extra-source=icons || exit 1
+gnome-extensions install --force "$sandbox/pack/$uuid.shell-extension.zip" || exit 1
 
 gsettings set org.gnome.shell enabled-extensions "['$driver', '$uuid']"
 gsettings set org.gnome.shell disable-user-extensions false
