@@ -150,16 +150,11 @@ export const PlayerView = GObject.registerClass({
     _buildTrackSection() {
         this._artworkView = new ArtworkView(this._motion);
 
-        this._scrim = new St.Widget({
-            style_class: 'spotify-oneui-scrim',
-            x_expand: true,
-            y_expand: true,
-            y_align: Clutter.ActorAlign.END,
+        this._statusLabel = new St.Label({
+            style_class: 'spotify-oneui-status',
+            x_align: Clutter.ActorAlign.START,
+            y_align: Clutter.ActorAlign.START,
         });
-
-        this._statusLabel = new St.Label({style_class: 'spotify-oneui-status'});
-        this._statusLabel.y_align = Clutter.ActorAlign.START;
-        this._statusLabel.x_align = Clutter.ActorAlign.START;
 
         this._openButton = new ControlButton({
             iconName: 'open',
@@ -177,7 +172,6 @@ export const PlayerView = GObject.registerClass({
             style_class: 'spotify-oneui-info',
             orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
-            y_expand: true,
         });
         this._info.add_child(this._titleLabel);
         this._info.add_child(this._artistLabel);
@@ -295,11 +289,13 @@ export const PlayerView = GObject.registerClass({
     _applyLayout() {
         const hero = this._useHero();
 
-        if (hero === this._heroActive && this._artworkView.get_parent())
+        this._artworkView.visible = this._settings.get_boolean('show-artwork');
+
+        if (hero === this._heroActive)
             return;
         this._heroActive = hero;
 
-        for (const actor of [this._artworkView, this._scrim, this._statusLabel,
+        for (const actor of [this._artworkView, this._statusLabel,
             this._openButton, this._info])
             actor.get_parent()?.remove_child(actor);
         this._column?.destroy();
@@ -310,11 +306,19 @@ export const PlayerView = GObject.registerClass({
 
         this._hero.visible = hero;
         this._row.visible = !hero;
-        this._artworkView.visible = this._settings.get_boolean('show-artwork');
+
+        // BinLayout only honors an alignment on a child that expands.
+        this._statusLabel.x_expand = hero;
+        this._statusLabel.y_expand = hero;
+        this._openButton.x_expand = hero;
+        this._openButton.y_expand = hero;
+        this._openButton.x_align = hero ? Clutter.ActorAlign.END : Clutter.ActorAlign.CENTER;
+        this._openButton.y_align = hero ? Clutter.ActorAlign.START : Clutter.ActorAlign.CENTER;
+        this._info.y_expand = hero;
+        this._info.y_align = hero ? Clutter.ActorAlign.END : Clutter.ActorAlign.FILL;
 
         if (hero) {
             this._hero.add_child(this._artworkView);
-            this._hero.add_child(this._scrim);
             this._hero.add_child(this._info);
             this._hero.add_child(this._statusLabel);
             this._hero.add_child(this._openButton);
@@ -444,8 +448,9 @@ export const PlayerView = GObject.registerClass({
 
     _syncArtwork() {
         const {track} = this._client;
+        const hero = this._heroActive;
         const showArtwork = this._settings.get_boolean('show-artwork');
-        const shape = this._heroActive ? HERO_ARTWORK : COMPACT_ARTWORK;
+        const shape = hero ? HERO_ARTWORK : COMPACT_ARTWORK;
         const url = showArtwork ? track.artUrl : '';
         const scale = this._getRenderScale();
         const key = `${url}@${shape.size}x${scale}`;
@@ -468,6 +473,7 @@ export const PlayerView = GObject.registerClass({
         this._artworkLoader.load(url, {
             size: Math.ceil(shape.size * scale),
             radius: Math.ceil(shape.radius * scale),
+            scrim: hero,
         }, cancellable).then(({content, color}) => {
             if (!cancellable.is_cancelled())
                 this._showArtwork(content, color);
