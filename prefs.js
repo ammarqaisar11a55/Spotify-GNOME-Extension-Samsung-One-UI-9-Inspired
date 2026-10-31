@@ -16,9 +16,11 @@ function createChoiceRow(settings, key, title, subtitle, choices) {
     row.connect('notify::selected', () => {
         settings.set_string(key, values[row.selected]);
     });
-    settings.connectObject?.(`changed::${key}`, () => {
+
+    const changedId = settings.connect(`changed::${key}`, () => {
         row.selected = Math.max(values.indexOf(settings.get_string(key)), 0);
-    }, row);
+    });
+    row.connect('destroy', () => settings.disconnect(changedId));
 
     return row;
 }
