@@ -482,8 +482,11 @@ async function testLegacyClient() {
     await sleep(1300);
     check('ignored repeat disappears', !await viewVisible('_repeatButton'));
 
+    await clearCalls();
     await clickView('_seekBar', 0.5);
     await sleep(700);
+    const [seekCall] = await mockCalls();
+    check('invalid track ids fall back to a relative seek', seekCall?.startsWith('Seek '), seekCall);
     const position = await shell('return spotifyTest.view._client.position / 1e6;');
     check('seek holds without a Seeked signal', Math.abs(position - 107) < 9, `at ${position}`);
     await screenshot('legacy-client');
@@ -521,6 +524,83 @@ async function testLifecycle() {
         `return Main.extensionManager.lookup('${UUID}').state;`), 1);
 }
 
+/* Needs a short monitor: TEST_MONITOR=1280x560 TEST_ONLY=testShortScreen */
+async function testShortScreen() {
+    await shell('Main.overview.hide(); await new Promise(r => setTimeout(r, 600));');
+    await startMock();
+    await openMenu();
+    await sleep(500);
+
+    check('short screens fall back to compact', !await viewVisible('_hero'));
+    const {y, height} = await shell('return spotifyTest.rect(spotifyTest.indicator.menu.box);');
+    check('popup fits on a short screen', y + height <= 560, `bottom at ${y + height}`);
+    await screenshot('short-screen');
+    await closeMenu();
+    await stopMock();
+}
+
+/* Needs a large monitor: TEST_MONITOR=2560x1600 TEST_ONLY=testHiDpi */
+async function testHiDpi() {
+    const displayConfig = ['org.gnome.Mutter.DisplayConfig', '/org/gnome/Mutter/DisplayConfig',
+        'org.gnome.Mutter.DisplayConfig'];
+
+    await shell('Main.overview.hide(); await new Promise(r => setTimeout(r, 600));');
+
+    const reply = await call(...displayConfig, 'GetCurrentState', null, null);
+    const [serial, monitors] = reply.deepUnpack();
+    const [[connector], modes] = monitors[0].deepUnpack?.() ?? monitors[0];
+    const mode = modes.find(([id]) => id.includes('2560')) ?? modes[0];
+
+    await call(...displayConfig, 'ApplyMonitorsConfig',
+        new GLib.Variant('(uua(iiduba(ssa{sv}))a{sv})', [serial, 1,
+            [[0, 0, 2, 0, true, [[connector, mode[0], {}]]]], {}]), null);
+    await sleep(1500);
+
+    equal('monitor runs at 2x', await shell('return global.display.get_monitor_scale(0);'), 2);
+
+    await startMock();
+    await openMenu();
+    await sleep(600);
+
+    equal('artwork renders at physical resolution', await shell(
+        'return spotifyTest.view._artworkView._front.content.get_preferred_size().slice(1);'),
+    [640, 640]);
+    await screenshot('hidpi');
+    await closeMenu();
+    await stopMock();
+}
+
+/* Opens the real preferences app against the disposable shell. */
+async function testPreferences() {
+    const launcher = new Gio.SubprocessLauncher({flags: Gio.SubprocessFlags.NONE});
+    launcher.setenv('WAYLAND_DISPLAY', 'test-0', true);
+    launcher.setenv('GDK_BACKEND', 'wayland', true);
+
+    const app = launcher.spawnv(['/usr/share/gnome-shell/org.gnome.Shell.Extensions']);
+    await sleep(1500);
+
+    await call('org.gnome.Shell.Extensions', '/org/gnome/Shell/Extensions',
+        'org.gnome.Shell.Extensions', 'OpenExtensionPrefs',
+        new GLib.Variant('(ssa{sv})', [UUID, '', {}]), null);
+    await sleep(3500);
+
+    const windows = await shell(`return global.get_window_actors()
+        .map(actor => actor.meta_window.get_title());`);
+    check('preferences window opens', windows.includes('Spotify One UI Player'),
+        JSON.stringify(windows));
+
+    const area = await shell(`const actor = global.get_window_actors().find(
+        a => a.meta_window.get_title() === 'Spotify One UI Player');
+        const rect = actor.meta_window.get_frame_rect();
+        return [rect.x, rect.y, rect.width, rect.height];`);
+    await call('org.gnome.Shell.Screenshot', '/org/gnome/Shell/Screenshot',
+        'org.gnome.Shell.Screenshot', 'ScreenshotArea',
+        new GLib.Variant('(iiiibs)', [...area, false, `${OUTPUT}/preferences.png`]), '(bs)');
+
+    app.send_signal(15);
+    await sleep(300);
+}
+
 const loop = new GLib.MainLoop(null, false);
 let exitCode = 0;
 
@@ -531,11 +611,12 @@ let exitCode = 0;
     const suites = {
         testNotRunning, testConnects, testControls, testSeeking, testTrackEdgeCases,
         testArtworkSources, testAppearance, testAnimationLevels, testPanelPosition,
-        testDisconnect, testLegacyClient, testLifecycle,
+        testDisconnect, testLegacyClient, testLifecycle, testPreferences,
     };
+    const onRequest = {testShortScreen, testHiDpi};
 
-    for (const [name, suite] of Object.entries(suites)) {
-        if (only && !only.split(',').includes(name))
+    for (const [name, suite] of Object.entries({...suites, ...onRequest})) {
+        if (only ? !only.split(',').includes(name) : name in onRequest)
             continue;
 
         print(`\n# ${name}`);
