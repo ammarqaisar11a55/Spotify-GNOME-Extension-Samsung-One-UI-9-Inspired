@@ -556,6 +556,10 @@ async function testInteractionStates() {
 /* Tracks skipping faster than artwork can load, with memory measured around it. */
 async function testRapidSkips() {
     const residentKb = () => shell(`
+        for (let i = 0; i < 3; i++) {
+            imports.system.gc();
+            await new Promise(r => setTimeout(r, 300));
+        }
         const [, bytes] = imports.gi.GLib.file_get_contents('/proc/self/status');
         const text = new TextDecoder().decode(bytes);
         return Number(text.match(/VmRSS:\\s+(\\d+)/)[1]);`);
@@ -578,16 +582,17 @@ async function testRapidSkips() {
     check('rapid skips settle on its artwork', await shell(
         'return spotifyTest.view._artworkView._front.content !== null;'));
 
-    await skip(60, 60);
+    // Allocators grow to a high-water mark first, so a leak only shows after it.
+    await skip(500, 60);
     await sleep(800);
-    const before = await residentKb();
-    await skip(300, 60);
-    await sleep(1500);
+    const settled = await residentKb();
+    await skip(500, 60);
+    await sleep(800);
     const after = await residentKb();
 
-    print(`info  resident memory across 300 track changes: ${before} kB to ${after} kB`);
-    check('memory stays bounded across 300 track changes', after - before < 60000,
-        `grew by ${after - before} kB`);
+    print(`info  resident memory across 500 settled track changes: ${settled} kB to ${after} kB`);
+    check('memory stays flat once settled', after - settled < 12000,
+        `grew by ${after - settled} kB`);
 
     await closeMenu();
     await stopMock();
