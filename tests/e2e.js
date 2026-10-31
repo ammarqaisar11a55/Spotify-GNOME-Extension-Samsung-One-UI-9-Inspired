@@ -613,7 +613,7 @@ async function testShortScreen() {
     await stopMock();
 }
 
-/* Needs a large monitor: TEST_MONITOR=2560x1600 TEST_ONLY=testHiDpi */
+/* Needs a large monitor: TEST_MONITOR=3840x2400 TEST_ONLY=testHiDpi */
 async function testHiDpi() {
     const displayConfig = ['org.gnome.Mutter.DisplayConfig', '/org/gnome/Mutter/DisplayConfig',
         'org.gnome.Mutter.DisplayConfig'];
@@ -623,7 +623,7 @@ async function testHiDpi() {
     const reply = await call(...displayConfig, 'GetCurrentState', null, null);
     const [serial, monitors] = reply.deepUnpack();
     const [[connector], modes] = monitors[0].deepUnpack?.() ?? monitors[0];
-    const mode = modes.find(([id]) => id.includes('2560')) ?? modes[0];
+    const [mode] = modes;
 
     await call(...displayConfig, 'ApplyMonitorsConfig',
         new GLib.Variant('(uua(iiduba(ssa{sv}))a{sv})', [serial, 1,
@@ -654,6 +654,7 @@ async function testHiDpi() {
     await setting('string', 'theme', 'dark');
     await screenshot('compact-dark');
 
+    await setting('string', 'theme', 'auto');
     await setting('string', 'layout', 'expanded');
     await sleep(600);
     await stopMock();
