@@ -1,0 +1,9 @@
+{
+  "uuid": "spotify-oneui@ammarqaisar11a55.github.io",
+  "name": "Spotify One UI Player",
+  "description": "A premium Spotify player for the GNOME top panel, inspired by the media player in Samsung One UI 9.\n\nShows artwork, track details and a waveform seek bar, with playback controls that talk directly to the Spotify desktop app. No Spotify account linking is required.\n\nNot affiliated with Spotify or Samsung.",
+  "shell-version": ["50"],
+  "url": "https://github.com/ammarqaisar11a55/Spotify-GNOME-Extension-Samsung-One-UI-9-Inspired",
+  "settings-schema": "org.gnome.shell.extensions.spotify-oneui",
+  "version-name": "1.0.0"
+}
