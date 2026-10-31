@@ -88,6 +88,11 @@ function clearCalls() {
         'org.spotifyoneui.MockControl', 'ClearCalls', null, null);
 }
 
+function setArtUrl(url) {
+    return call('org.mpris.MediaPlayer2.spotify', '/org/spotifyoneui/MockControl',
+        'org.spotifyoneui.MockControl', 'SetArtUrl', new GLib.Variant('(s)', [url]), null);
+}
+
 function setMockEmpty() {
     return call('org.mpris.MediaPlayer2.spotify', '/org/spotifyoneui/MockControl',
         'org.spotifyoneui.MockControl', 'SetEmptyMetadata', null, null);
@@ -114,17 +119,19 @@ const viewVisible = actor => shell(`return spotifyTest.view.${actor}.visible;`);
 
 async function screenshot(name) {
     await shell('await spotifyTest.parkPointer();');
-    const {x, y, width, height} = await shell(
-        'return spotifyTest.rect(spotifyTest.indicator.menu.box);');
+    const {x, y, width, height, stageWidth, stageHeight} = await shell(
+        `return {...spotifyTest.rect(spotifyTest.indicator.menu.box),
+            stageWidth: global.stage.width, stageHeight: global.stage.height};`);
     const margin = 44;
     const left = Math.max(0, Math.floor(x - margin));
     const top = Math.max(0, Math.floor(y - margin));
+    const right = Math.min(stageWidth, Math.ceil(x + width + margin));
+    const bottom = Math.min(stageHeight, Math.ceil(y + height + margin));
     const path = `${OUTPUT}/${name}.png`;
 
     await call('org.gnome.Shell.Screenshot', '/org/gnome/Shell/Screenshot',
         'org.gnome.Shell.Screenshot', 'ScreenshotArea',
-        new GLib.Variant('(iiiibs)', [left, top, Math.ceil(width + margin * 2),
-            Math.ceil(height + margin * 2), false, path]), '(bs)');
+        new GLib.Variant('(iiiibs)', [left, top, right - left, bottom - top, false, path]), '(bs)');
 }
 
 async function waitForShell() {
@@ -293,6 +300,51 @@ async function testTrackEdgeCases() {
     await screenshot('expanded-dark-no-cover');
 }
 
+async function testArtworkSources() {
+    const showsCover = () => shell('return spotifyTest.view._artworkView._front.content !== null;');
+    const cached = () => shell(`
+        const dir = imports.gi.GLib.build_filenamev(
+            [imports.gi.GLib.get_user_cache_dir(), 'spotify-oneui', 'artwork']);
+        const file = imports.gi.Gio.File.new_for_path(dir);
+        if (!file.query_exists(null))
+            return 0;
+        const entries = file.enumerate_children('standard::name', 0, null);
+        let count = 0;
+        while (entries.next_file(null))
+            count++;
+        return count;`);
+
+    await setArtUrl('http://example.com/cover.jpg');
+    await sleep(600);
+    check('plain http artwork falls back', !await showsCover());
+
+    await setArtUrl(`file://${ROOT}/README-does-not-exist.jpg`);
+    await sleep(600);
+    check('missing artwork falls back', !await showsCover());
+
+    await setArtUrl(`file://${ROOT}/metadata.json`);
+    await sleep(600);
+    check('undecodable artwork falls back', !await showsCover());
+
+    const image = GLib.getenv('TEST_HTTPS_ART');
+    if (!image) {
+        print('skip  https artwork, TEST_HTTPS_ART is not set');
+        return;
+    }
+
+    await setArtUrl(image);
+    await sleep(3000);
+    check('https artwork is downloaded and shown', await showsCover());
+    equal('https artwork is cached on disk', await cached(), 1);
+
+    await setArtUrl('');
+    await sleep(500);
+    await setArtUrl(image);
+    await sleep(800);
+    check('cached artwork shows again', await showsCover());
+    equal('the cache does not duplicate entries', await cached(), 1);
+}
+
 async function testAppearance() {
     await clickView('_nextButton');
     await sleep(600);
@@ -309,6 +361,12 @@ async function testAppearance() {
 
     await setting('string', 'theme', 'dark');
     await screenshot('compact-dark');
+
+    await setting('boolean', 'show-artwork', false);
+    check('artwork can be turned off in compact', !await viewVisible('_artworkView'));
+    await setting('boolean', 'show-artwork', true);
+    await sleep(500);
+    check('artwork comes back in compact', await viewVisible('_artworkView'));
 
     await setting('string', 'theme', 'auto');
     check('auto follows the desktop', await shell(
@@ -472,8 +530,8 @@ let exitCode = 0;
     const only = GLib.getenv('TEST_ONLY');
     const suites = {
         testNotRunning, testConnects, testControls, testSeeking, testTrackEdgeCases,
-        testAppearance, testAnimationLevels, testPanelPosition, testDisconnect,
-        testLegacyClient, testLifecycle,
+        testArtworkSources, testAppearance, testAnimationLevels, testPanelPosition,
+        testDisconnect, testLegacyClient, testLifecycle,
     };
 
     for (const [name, suite] of Object.entries(suites)) {
