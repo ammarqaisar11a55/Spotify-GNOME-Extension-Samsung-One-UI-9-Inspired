@@ -25,7 +25,7 @@ function call(name, path, iface, method, parameters, replyType) {
     return new Promise((resolve, reject) => {
         bus.call(name, path, iface, method, parameters,
             replyType ? new GLib.VariantType(replyType) : null,
-            Gio.DBusCallFlags.NONE, 20000, null, (connection, result) => {
+            Gio.DBusCallFlags.NONE, 120000, null, (connection, result) => {
                 try {
                     resolve(connection.call_finish(result));
                 } catch (error) {
