@@ -49,10 +49,12 @@ every icon in `icons/` is drawn for this project.
 | `text-muted` | `#A1A4AB` | `#5F636B` | Secondary text |
 | `wave-idle` | `rgba(255,255,255,0.22)` | `rgba(0,0,0,0.18)` | Unplayed waveform |
 | `accent` | `#1ED760` | `#1DB954` | Play button fill, active toggles, played waveform |
+| `accent-toggle` | `#1ED760` | `#149C45` | Active shuffle and repeat, darker in light mode for contrast |
 | `on-accent` | `#07130B` | `#07130B` | Glyph on the play button |
 
 On the hero, text is always white over a black scrim in both themes, because it
-sits on artwork and not on a theme surface.
+sits on artwork and not on a theme surface. The scrim is rendered into the artwork
+itself, because an overlay's circular corners cannot match the cover's superellipse.
 
 The card also carries a tint sampled from the album art, at 14% in dark mode and
 9% in light mode. It keeps the surface calm while tying it to the music.
@@ -77,7 +79,7 @@ Text uses the desktop's interface font and scales with it, so sizes are in `em`.
 
 | Role | Size | Weight |
 | --- | --- | --- |
-| Title | 1.5em | 800 |
+| Title | 1.5em, 1.2em in compact | 800 |
 | Artist | 1em | 600 |
 | Album | 0.86em | 500 |
 | Time and status | 0.8em | 600, tabular figures |
